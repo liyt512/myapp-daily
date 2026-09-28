@@ -17,5 +17,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "DouYinApp"
+rootProject.name = "MyappDaily"
 include(":app")
