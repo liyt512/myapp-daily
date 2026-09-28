@@ -39,6 +39,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupWebView() {
         webView.apply {
+            setBackgroundColor(android.graphics.Color.BLACK)
+            overScrollMode = android.webkit.WebView.OVER_SCROLL_NEVER
             settings.apply {
                 javaScriptEnabled = true
                 domStorageEnabled = true
