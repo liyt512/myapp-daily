@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  黑底白线条图标，风格类似 >,< 颜文字
+  白线条圆角矩形外框 + 内部极简笑脸
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
@@ -7,16 +11,37 @@
     <group
         android:translateX="14"
         android:translateY="14">
-        <!-- 圆形底 -->
+
+        <!-- 外框：圆角矩形轮廓 -->
         <path
-            android:fillColor="#FFFFFFFF"
-            android:pathData="M40,0 C62,0 80,18 80,40 C80,62 62,80 40,80 C18,80 0,62 0,40 C0,18 18,0 40,0 Z"/>
-        <!-- "日" 字 -->
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="3"
+            android:pathData="M4,4 L76,4 Q80,4 80,8 L80,72 Q80,76 76,76 L4,76 Q0,76 0,72 L0,8 Q0,4 4,4 Z"/>
+
+        <!-- 左眼 > 的两笔 -->
         <path
-            android:fillColor="#FFFF6B35"
-            android:strokeColor="#FFFF6B35"
-            android:strokeWidth="4"
-            android:fillAlpha="0"
-            android:pathData="M28,24 L52,24 L52,56 L28,56 Z M28,40 L52,40 M40,24 L40,56"/>
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="3.5"
+            android:strokeLineCap="round"
+            android:pathData="M22,28 L32,36 L22,44"/>
+
+        <!-- 右眼 < 的两笔 -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="3.5"
+            android:strokeLineCap="round"
+            android:pathData="M58,28 L48,36 L58,44"/>
+
+        <!-- 嘴巴：弧度微笑 -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="3"
+            android:strokeLineCap="round"
+            android:pathData="M22,54 Q40,68 58,54"/>
+
     </group>
 </vector>

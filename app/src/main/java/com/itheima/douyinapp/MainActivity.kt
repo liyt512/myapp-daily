@@ -77,8 +77,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupSwipeRefresh() {
         swipeRefresh.setColorSchemeColors(
-            resources.getColor(android.R.color.holo_orange_light, theme),
-            resources.getColor(android.R.color.holo_orange_dark, theme)
+            resources.getColor(android.R.color.white, theme),
+            resources.getColor(android.R.color.darker_gray, theme)
         )
         swipeRefresh.setOnRefreshListener {
             webView.reload()
