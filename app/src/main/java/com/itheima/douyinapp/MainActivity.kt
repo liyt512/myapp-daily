@@ -1,10 +1,14 @@
 package com.itheima.douyinapp
 
+import android.content.ContentResolver
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
+import java.io.File
+import java.io.FileOutputStream
 import android.view.KeyEvent
 import android.view.View
 import android.webkit.ValueCallback
@@ -57,8 +61,12 @@ class MainActivity : AppCompatActivity() {
                 setSupportZoom(true)
                 builtInZoomControls = true
                 displayZoomControls = false
-                allowFileAccess = false
-                cacheMode = android.webkit.WebSettings.LOAD_DEFAULT
+                // 允许读取上传时复制出的 file:// 文件路径
+                allowFileAccess = true
+                allowFileAccessFromFileURLs = false
+                allowUniversalAccessFromFileURLs = false
+                // 总是从服务器获取最新页面，避免旧缓存导致"看不到更新"或旧功能
+                cacheMode = android.webkit.WebSettings.LOAD_NO_CACHE
             }
 
             webViewClient = object : WebViewClient() {
@@ -157,9 +165,21 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == FILE_CHOOSER_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
+            if (resultCode == RESULT_OK && data != null) {
+                val uris = mutableListOf<Uri>()
+                val clip = data.clipData
+                if (clip != null) {
+                    for (i in 0 until clip.itemCount) {
+                        clip.getItemAt(i)?.uri?.let { uris.add(it) }
+                    }
+                } else {
+                    data.data?.let { uris.add(it) }
+                }
+                // 把 content:// 复制成真实文件，回传 file:// URI，
+                // 这样网页端才能读到文件名、类型和内容（安卓 WebView 直接传 content:// 前端拿不到 name/type）
+                val fileUris = uris.mapNotNull { copyUriToFile(it) }
                 fileUploadCallback?.onReceiveValue(
-                    if (data?.data != null) arrayOf(data.data!!) else null
+                    if (fileUris.isEmpty()) null else fileUris.toTypedArray()
                 )
             } else {
                 fileUploadCallback?.onReceiveValue(null)
@@ -168,6 +188,51 @@ class MainActivity : AppCompatActivity() {
             return
         }
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    // 将 content:// URI 下载成 app 缓存目录里的真实文件，返回 file:// URI
+    private fun copyUriToFile(uri: Uri): Uri? {
+        return try {
+            val resolver: ContentResolver = contentResolver
+            val ext = getFileExtension(resolver, uri)
+            val outFile = File(cacheDir, "select_${System.currentTimeMillis()}$ext")
+            resolver.openInputStream(uri)?.use { input ->
+                FileOutputStream(outFile).use { output ->
+                    input.copyTo(output)
+                }
+            } ?: return null
+            Uri.fromFile(outFile)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    // 尽量获取原文件扩展名，拿不到就按内容类型推断
+    private fun getFileExtension(resolver: ContentResolver, uri: Uri): String {
+        var name = ""
+        try {
+            resolver.query(uri, arrayOf(MediaStore.MediaColumns.DISPLAY_NAME), null, null, null)
+                ?.use { c ->
+                    if (c.moveToFirst() && !c.isNull(0)) {
+                        name = c.getString(0) ?: ""
+                    }
+                }
+        } catch (_: Exception) {
+        }
+        if (name.contains(".")) {
+            return name.substring(name.lastIndexOf("."))
+        }
+        return when (resolver.getType(uri)?.lowercase()) {
+            "image/jpeg", "image/jpg" -> ".jpg"
+            "image/png" -> ".png"
+            "image/gif" -> ".gif"
+            "image/webp" -> ".webp"
+            "image/heic" -> ".heic"
+            "video/mp4" -> ".mp4"
+            "video/webm" -> ".webm"
+            "video/3gpp" -> ".3gp"
+            else -> ""
+        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
