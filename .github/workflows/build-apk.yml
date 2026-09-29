@@ -36,20 +36,3 @@ jobs:
         name: myapp-daily.apk
         path: app/build/outputs/apk/debug/app-debug.apk
         if-no-files-found: error
-
-    - name: 发布Release
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: v1.1.${{ github.run_number }}
-        name: 我的日常 v1.1.${{ github.run_number }}
-        body: |
-          ✅ 修复图标白边
-          ✅ 支持文件选择（头像/图片/视频）
-          ✅ 头像裁剪缩放功能
-          ✅ 发图片/视频功能
-        files: app/build/outputs/apk/debug/app-debug.apk
-        fail_on_unmatched_files: false
-        make_latest: true
-        token: ${{ github.token }}
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
