@@ -61,7 +61,14 @@ jobs:
         password: ${{ secrets.SERVER_PASS }}
         port: 22
         script: |
-          mkdir -p /root/uploads && cp /tmp/app-debug.apk /root/app.apk 2>/dev/null || true
-          ls -lh /root/app.apk 2>/dev/null || echo "服务器部署跳过"
+          echo "搜索 uploads 目录:"
+          find / -type d -name uploads 2>/dev/null | head -20
+          echo "=== 复制 app.apk 到所有可访问的 uploads 目录 ==="
+          for d in $(find / -type d -name uploads 2>/dev/null); do
+            cp /tmp/app-debug.apk "$d/app.apk" 2>/dev/null && echo "已复制到: $d/app.apk" || echo "复制失败: $d"
+          done
+          # 兜底：常见目录
+          cp /tmp/app-debug.apk /root/app.apk 2>/dev/null || true
+          echo "=== 完成 ==="
       env:
         SERVER_HOST: ${{ secrets.SERVER_HOST }}
