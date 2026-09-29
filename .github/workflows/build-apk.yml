@@ -30,9 +30,23 @@ jobs:
     - name: 构建APK
       run: gradle assembleDebug
 
-    - name: 上传APK
+    - name: 上传APK到GitHub
       uses: actions/upload-artifact@v4
       with:
         name: myapp-daily.apk
         path: app/build/outputs/apk/debug/app-debug.apk
         if-no-files-found: error
+
+    - name: 发布Release（方便直接下载）
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v1.1.${{ github.run_number }}
+        name: 我的日常 v1.1.${{ github.run_number }}
+        body: |
+          ✅ 修复图标白边
+          ✅ 支持文件选择（头像/图片/视频）
+          ✅ 头像裁剪缩放功能
+          ✅ 发图片/视频功能
+        files: app/build/outputs/apk/debug/app-debug.apk
+        generate_release_notes: false
+        make_latest: true
