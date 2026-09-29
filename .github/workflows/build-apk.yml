@@ -37,7 +37,7 @@ jobs:
         path: app/build/outputs/apk/debug/app-debug.apk
         if-no-files-found: error
 
-    - name: 发布Release（方便直接下载）
+    - name: 发布Release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: v1.1.${{ github.run_number }}
@@ -48,5 +48,8 @@ jobs:
           ✅ 头像裁剪缩放功能
           ✅ 发图片/视频功能
         files: app/build/outputs/apk/debug/app-debug.apk
-        generate_release_notes: false
+        fail_on_unmatched_files: false
         make_latest: true
+        token: ${{ github.token }}
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
